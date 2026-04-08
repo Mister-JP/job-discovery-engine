@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: jobengine-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jobengine
+      POSTGRES_DB: jobengine
+      # Local-only auth for the initial scaffold.
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      # Use 5433 on the host to avoid clashing with a local PostgreSQL install.
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jobengine -d jobengine"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+    driver: local
